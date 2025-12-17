@@ -4,9 +4,15 @@ import org.embulk.config.Config;
 import org.embulk.config.ConfigDefault;
 import org.embulk.config.Task;
 
+import java.util.Optional;
+
 public interface PluginTask
         extends Task
 {
+    @Config("endpoint")
+    @ConfigDefault("null")
+    public Optional<String> getEndpoint();
+
     @Config("region")
     public String getRegion();
 

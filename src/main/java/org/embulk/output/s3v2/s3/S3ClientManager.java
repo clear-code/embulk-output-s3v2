@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.Optional;
 
 import org.embulk.output.s3v2.util.ChunksizeComputation;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -39,7 +40,7 @@ public class S3ClientManager
 {
     private final S3Client s3;
 
-    public S3ClientManager(String regionName, boolean enableProfile, String profileName)
+    public S3ClientManager(Optional<String> endpoint, String regionName, boolean enableProfile, String profileName)
     {
         S3ClientBuilder builder = S3Client.builder();
 
@@ -57,6 +58,13 @@ public class S3ClientManager
             provider = DefaultCredentialsProvider.builder().profileName("").build();
         }
         builder = builder.credentialsProvider(provider);
+
+        if (endpoint.isPresent()) {
+            String ep = endpoint.get();
+            if (!ep.isEmpty()) {
+                builder = builder.endpointOverride(java.net.URI.create(ep));
+            }
+        }
 
         s3 = builder.build();
     }
