@@ -26,7 +26,7 @@ apply plugin: 'checkstyle'
 import com.github.jrubygradle.JRubyExec
 
 group 'com.github.ttksm'
-version '0.3.0'
+version '0.3.0.clearcode.20260717'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
