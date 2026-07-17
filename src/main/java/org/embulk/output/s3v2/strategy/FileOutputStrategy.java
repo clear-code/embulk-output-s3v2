@@ -102,7 +102,12 @@ public class FileOutputStrategy extends AbstractStrategy
     @Override
     public void close()
     {
-        closeBuffer();
+        try {
+            closeBuffer();
+        }
+        finally {
+            super.close();
+        }
     }
 
     @Override

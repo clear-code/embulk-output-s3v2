@@ -97,9 +97,9 @@ public class S3ClientManager
         CreateMultipartUploadResponse response = s3.createMultipartUpload(createMultipartUploadRequest);
         String uploadId = response.uploadId();
 
+        ExecutorService es = Executors.newFixedThreadPool(status.getMaxConcurrentRequests());
         try (BufferedInputStream bufferStream = new BufferedInputStream(
                 new FileInputStream(sourceFile.toFile()))) {
-            ExecutorService es = Executors.newFixedThreadPool(status.getMaxConcurrentRequests());
             List<CompletableFuture<String>> futureList = new ArrayList<>();
 
             int multipartChunksize = ChunksizeComputation.getChunksizeBytes(status.getMultipartChunksize());
@@ -154,6 +154,9 @@ public class S3ClientManager
                     .uploadId(uploadId)
                     .build();
             s3.abortMultipartUpload(abortMultipartUploadRequest);
+        } finally {
+            // Shut down the pool to avoid leaking its threads on every call.
+            es.shutdown();
         }
     }
 
@@ -172,5 +175,14 @@ public class S3ClientManager
     public void deleteObject(String bucket, String objectKey)
     {
         s3.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(objectKey).build());
+    }
+
+    /**
+     * Releases the underlying S3Client and its internal threads.
+     * Must be called once the S3 operations of a task have finished.
+     */
+    public void close()
+    {
+        s3.close();
     }
 }

@@ -54,7 +54,7 @@ public class BufferedStrategy extends AbstractStrategy
     @Override
     public void close()
     {
-        // Do nothing.
+        super.close();
     }
 
     @Override

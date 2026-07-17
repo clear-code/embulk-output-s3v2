@@ -21,13 +21,14 @@ public class BufferedStrategyTests
     public void setUp()
     {
         task = Mockito.mock(PluginTask.class);
-        Mockito.doReturn("ap-northeast-1").when(task).getRegion();
     }
 
     @Test
     @DisplayName("Test validate true")
     public void testValidateTrue() throws Exception
     {
+        // Only this case builds an S3 client, so only this case needs the region.
+        Mockito.doReturn("ap-northeast-1").when(task).getRegion();
         Mockito.doReturn(false).when(task).getEnableMultiPartUpload();
         BufferedStrategy output = new BufferedStrategy(task, 0);
         Assertions.assertTrue(output.validate());
