@@ -84,6 +84,12 @@ public class FileOutputStrategy extends AbstractStrategy
             ex.printStackTrace();
             throw new RuntimeException("Failed to buffer data.");
         }
+        finally {
+            // The caller hands over the ownership of the buffer to add(): FileOutputOutputStream
+            // drops its own reference without releasing it. Not releasing here keeps the pooled
+            // buffer allocated forever. See OutputStreamFileOutput#add() in embulk-core.
+            buffer.release();
+        }
     }
 
     @Override
@@ -102,7 +108,12 @@ public class FileOutputStrategy extends AbstractStrategy
     @Override
     public void close()
     {
-        closeBuffer();
+        try {
+            closeBuffer();
+        }
+        finally {
+            super.close();
+        }
     }
 
     @Override
